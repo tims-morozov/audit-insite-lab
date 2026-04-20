@@ -5,7 +5,6 @@ import {
   CheckCircle2, 
   XCircle, 
   Globe, 
-  Link as LinkIcon, 
   FileText, 
   BarChart3, 
   ShieldCheck, 
@@ -13,9 +12,7 @@ import {
   AlertTriangle,
   Layers,
   PhoneCall,
-  Zap,
-  Smartphone,
-  Eye
+  Zap
 } from 'lucide-react';
 
 interface AuditData {
@@ -50,18 +47,26 @@ interface AuditData {
       total: number;
       missingAlt: number;
     };
+    cta: {
+      count: number;
+      blocksCount: number;
+      hasFixedCta: boolean;
+      isEnough: boolean;
+      required: number;
+    };
   };
   technical: {
     links: {
       total: number;
       empty: number;
+      brokenUrls: string[];
     };
     favicon: boolean;
     ssl: boolean;
   };
   performance: {
-    loadTimeMs: number;
-    loadTimeSec: string;
+    scoreValue: number;
+    lcp: string;
     score: 'Excellent' | 'Good' | 'Poor';
   };
   visual: {
@@ -75,6 +80,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<AuditData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showBrokenLinks, setShowBrokenLinks] = useState(false);
 
   const handleAudit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,6 +89,7 @@ function App() {
     setLoading(true);
     setError(null);
     setData(null);
+    setShowBrokenLinks(false);
 
     try {
       const response = await fetch('/api/audit', {
@@ -176,12 +183,69 @@ function App() {
         )}
 
         {data && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
             
-            {/* Left Column: Analysis Results */}
-            <div className="lg:col-span-2 space-y-8">
+            {/* Analysis Results */}
+            <div className="space-y-8">
               
-              {/* 1. Маркетинг и Аналитика */}
+              {/* 1. Техническое состояние */}
+              <section>
+                <div className="flex items-center gap-2 mb-4 px-2">
+                  <Layers className="h-6 w-6 text-purple-600" />
+                  <h2 className="text-xl font-bold text-slate-900">Техническое состояние</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className={`p-6 rounded-3xl shadow-sm border-2 transition-all flex flex-col justify-center ${getPerformanceColor(data.performance.score)}`}>
+                    <p className="text-xs font-bold uppercase tracking-widest mb-2 opacity-80">Google PageSpeed</p>
+                    <div className="flex items-end gap-3">
+                      <p className="text-5xl font-black leading-none">{data.performance.scoreValue}</p>
+                      <p className="text-sm font-bold opacity-70 mb-1">/ 100</p>
+                    </div>
+                    <div className="flex items-center gap-2 mt-3">
+                      <div className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tighter border-2 border-current">
+                        {data.performance.score}
+                      </div>
+                      <span className="text-xs font-semibold opacity-70 ml-2">
+                        LCP: {data.performance.lcp}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-center">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase mb-1">Нерабочие ссылки</p>
+                        <p className="text-4xl font-black text-slate-900">{data.technical.links.brokenUrls?.length || 0}</p>
+                      </div>
+                      <StatusIcon status={(data.technical.links.brokenUrls?.length || 0) === 0} />
+                    </div>
+                    {data.technical.links.brokenUrls && data.technical.links.brokenUrls.length > 0 && (
+                      <div className="mt-4">
+                        <button
+                          onClick={() => setShowBrokenLinks(!showBrokenLinks)}
+                          className="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors"
+                        >
+                          {showBrokenLinks ? 'Скрыть список' : 'Показать список'}
+                        </button>
+                        {showBrokenLinks && (
+                          <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-100 max-h-48 overflow-y-auto">
+                            <ul className="space-y-2">
+                              {data.technical.links.brokenUrls.map((linkUrl, idx) => (
+                                <li key={idx} className="text-xs text-slate-600 break-all bg-white p-2 rounded-lg shadow-sm border border-slate-100">
+                                  <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 hover:underline">
+                                    {linkUrl}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              {/* 2. Маркетинг и Аналитика */}
               <section>
                 <div className="flex items-center gap-2 mb-4 px-2">
                   <BarChart3 className="h-6 w-6 text-blue-600" />
@@ -221,7 +285,7 @@ function App() {
                 </div>
               </section>
 
-              {/* 2. SEO */}
+              {/* 3. SEO */}
               <section>
                 <div className="flex items-center gap-2 mb-4 px-2">
                   <FileText className="h-6 w-6 text-indigo-600" />
@@ -262,97 +326,70 @@ function App() {
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* 3. Техническое состояние */}
-              <section>
-                <div className="flex items-center gap-2 mb-4 px-2">
-                  <Layers className="h-6 w-6 text-purple-600" />
-                  <h2 className="text-xl font-bold text-slate-900">Техническое состояние</h2>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase mb-1">Битые ссылки</p>
-                      <p className="text-2xl font-black text-slate-900">{data.technical.links.empty}</p>
-                    </div>
-                    <StatusIcon status={data.technical.links.empty === 0} />
-                  </div>
-                  <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase mb-1">Favicon</p>
-                      <p className="text-2xl font-black text-slate-900">{data.technical.favicon ? 'Есть' : 'Нет'}</p>
-                    </div>
-                    <StatusIcon status={data.technical.favicon} />
-                  </div>
-                  <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase mb-1">SSL (HTTPS)</p>
-                      <p className="text-2xl font-black text-slate-900">{data.technical.ssl ? 'Да' : 'Нет'}</p>
-                    </div>
-                    <StatusIcon status={data.technical.ssl} />
-                  </div>
-                </div>
-              </section>
-            </div>
-
-            {/* Right Column: Performance & Visual */}
-            <div className="space-y-8">
-              
-              {/* Performance */}
-              <section>
-                <div className="flex items-center gap-2 mb-4 px-2">
-                  <Zap className="h-6 w-6 text-amber-500" />
-                  <h2 className="text-xl font-bold text-slate-900">Производительность</h2>
-                </div>
-                <div className={`bg-white p-8 rounded-3xl shadow-sm border-2 transition-all ${getPerformanceColor(data.performance.score)}`}>
-                  <div className="text-center">
-                    <p className="text-sm font-bold uppercase tracking-widest mb-1">Время загрузки</p>
-                    <p className="text-5xl font-black mb-2">{data.performance.loadTimeSec}с</p>
-                    <div className="inline-block px-4 py-1 rounded-full text-sm font-bold uppercase tracking-tighter border-2 border-current">
-                      {data.performance.score}
-                    </div>
-                  </div>
-                  <div className="mt-8 space-y-4">
-                    <div className="flex items-center justify-between text-sm border-t border-current/10 pt-4">
-                      <span className="font-semibold opacity-70">Адаптивность:</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold">{data.visual.mobileFriendly ? 'Оптимизировано' : 'Нет meta viewport'}</span>
-                        <Smartphone className={`h-5 w-5 ${data.visual.mobileFriendly ? 'text-green-500' : 'text-red-400'}`} />
+                    <div className="pt-6 border-t border-slate-100">
+                      <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">CTA (Кнопки призыва к действию)</h3>
+                      <div className={`flex items-center gap-3 p-4 rounded-2xl border ${data.seo.cta.isEnough ? 'bg-green-50/50 border-green-100' : 'bg-amber-50/50 border-amber-100'}`}>
+                        <Zap className={`h-6 w-6 shrink-0 ${data.seo.cta.isEnough ? 'text-green-600' : 'text-amber-500'}`} />
+                        <div>
+                          <p className="font-bold text-slate-900">
+                            {data.seo.cta.isEnough 
+                                ? 'Оценка CTA: OK' 
+                                : 'Оценка CTA: Рекомендуется увеличить количество CTA'}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </section>
 
-              {/* Visual Audit */}
+            </div>
+
+            {/* Right Column: Visual & Mobile (Temporarily Hidden) 
+            <div className="space-y-8 mt-8">
+              
               <section>
                 <div className="flex items-center gap-2 mb-4 px-2">
                   <Eye className="h-6 w-6 text-emerald-600" />
                   <h2 className="text-xl font-bold text-slate-900">Визуальный аудит</h2>
                 </div>
-                <div className="bg-white p-2 rounded-3xl shadow-sm border border-slate-100 overflow-hidden group">
-                  <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-100">
-                    <img 
-                      src={data.visual.screenshot} 
-                      alt="Site Screenshot" 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <button className="bg-white text-slate-900 px-4 py-2 rounded-xl font-bold text-sm shadow-xl">
-                        Увеличить
-                      </button>
+                
+                <div className="space-y-4">
+                  <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-xl ${data.visual.mobileFriendly ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
+                        <Smartphone className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase mb-0.5">Адаптивность</p>
+                        <p className="font-bold text-slate-900">{data.visual.mobileFriendly ? 'Оптимизировано' : 'Нет meta viewport'}</p>
+                      </div>
                     </div>
+                    <StatusIcon status={data.visual.mobileFriendly} />
                   </div>
-                  <div className="p-4 text-center">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Скриншот главной страницы</p>
+
+                  <div className="bg-white p-2 rounded-3xl shadow-sm border border-slate-100 overflow-hidden group">
+                    <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-100">
+                      <img 
+                        src={data.visual.screenshot} 
+                        alt="Site Screenshot" 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <button className="bg-white text-slate-900 px-4 py-2 rounded-xl font-bold text-sm shadow-xl">
+                          Увеличить
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4 text-center">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Скриншот главной страницы</p>
+                    </div>
                   </div>
                 </div>
               </section>
 
             </div>
+            */}
           </div>
         )}
       </div>
