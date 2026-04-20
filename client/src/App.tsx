@@ -12,7 +12,10 @@ import {
   AlertTriangle,
   Layers,
   PhoneCall,
-  Zap
+  Zap,
+  Lightbulb,
+  AlertCircle,
+  Info
 } from 'lucide-react';
 
 interface AuditData {
@@ -74,6 +77,40 @@ interface AuditData {
     mobileFriendly: boolean;
   };
 }
+
+const generateRecommendations = (data: AuditData) => {
+  const recs: { type: 'error' | 'warning' | 'info' | 'success'; text: string }[] = [];
+  
+  // Performance
+  if (data.performance.scoreValue < 50) recs.push({ type: 'error', text: 'Критически низкая скорость загрузки сайта. По Google PageSpeed оценка ниже 50.' });
+  else if (data.performance.scoreValue < 90) recs.push({ type: 'warning', text: 'Увеличьте скорость загрузки сайта. По Google PageSpeed оценка ниже 90 (в "желтой" зоне).' });
+  
+  // SEO
+  if (!data.seo.title || data.seo.title === 'Not found') recs.push({ type: 'error', text: 'Добавьте тег Title. Это критически важно для SEO.' });
+  else if (data.seo.title.length < 30 || data.seo.title.length > 65) recs.push({ type: 'warning', text: 'Скорректируйте длину Title (оптимально 30-65 символов).' });
+  
+  if (!data.seo.description || data.seo.description === 'Not found') recs.push({ type: 'error', text: 'Добавьте мета-тег Description для улучшения кликабельности (CTR) в поиске.' });
+  
+  if (data.seo.h1.count === 0) recs.push({ type: 'error', text: 'На странице отсутствует тег H1. Обязательно добавьте главный заголовок.' });
+  else if (data.seo.h1.hasDuplicates) recs.push({ type: 'warning', text: 'На странице несколько тегов H1. Рекомендуется оставить только один.' });
+  
+  if (data.seo.images.missingAlt > 0) recs.push({ type: 'warning', text: `Добавьте атрибут alt для ${data.seo.images.missingAlt} изображений. Это полезно для поиска по картинкам и доступности.` });
+  if (!data.seo.cta.isEnough) recs.push({ type: 'info', text: 'Рекомендуется добавить больше кнопок призыва к действию (CTA) для повышения конверсии.' });
+  
+  // Technical
+  if (data.technical.links.brokenUrls && data.technical.links.brokenUrls.length > 0) recs.push({ type: 'error', text: `Исправьте или удалите битые ссылки (${data.technical.links.brokenUrls.length} шт.). Они негативно влияют на SEO.` });
+  if (!data.technical.favicon) recs.push({ type: 'warning', text: 'Добавьте фавикон для улучшения узнаваемости сайта во вкладках браузера.' });
+  
+  // Marketing
+  const hasAnalytics = Object.values(data.marketing.analytics).some(v => v);
+  if (!hasAnalytics) recs.push({ type: 'warning', text: 'Установите системы аналитики (например, Яндекс.Метрику или VK Pixel) для отслеживания посетителей.' });
+  
+  if (!data.marketing.callTracking.present) recs.push({ type: 'info', text: 'Если вы принимаете звонки, рассмотрите подключение коллтрекинга для анализа источников звонков.' });
+
+  if (recs.length === 0) recs.push({ type: 'success', text: 'Отличная работа! Сайт хорошо оптимизирован, критических проблем не найдено.' });
+
+  return recs;
+};
 
 function App() {
   const [url, setUrl] = useState('');
@@ -303,7 +340,7 @@ function App() {
                         <p className="text-slate-600 mt-1.5 text-sm leading-relaxed">{data.seo.description}</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100">
                         <p className="text-xs font-bold text-indigo-400 uppercase">H1 Заголовки</p>
                         <div className="flex items-center justify-between mt-1">
@@ -325,6 +362,15 @@ function App() {
                           <ImageIcon className={`h-5 w-5 ${data.seo.images.missingAlt > 0 ? 'text-amber-500' : 'text-green-500'}`} />
                         </div>
                       </div>
+                      <div className={`p-4 rounded-2xl border ${data.technical.favicon ? 'bg-green-50/50 border-green-100' : 'bg-red-50/50 border-red-100'}`}>
+                        <p className={`text-xs font-bold uppercase ${data.technical.favicon ? 'text-green-600' : 'text-red-500'}`}>Фавикон</p>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className={`text-xl font-black ${data.technical.favicon ? 'text-green-700' : 'text-red-600'}`}>
+                            {data.technical.favicon ? 'Найден' : 'Отсутствует'}
+                          </span>
+                          {data.technical.favicon ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                        </div>
+                      </div>
                     </div>
                     <div className="pt-6 border-t border-slate-100">
                       <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">CTA (Кнопки призыва к действию)</h3>
@@ -339,6 +385,34 @@ function App() {
                         </div>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* 4. Recommendations */}
+              <section>
+                <div className="flex items-center gap-2 mb-4 px-2">
+                  <Lightbulb className="h-6 w-6 text-amber-500" />
+                  <h2 className="text-xl font-bold text-slate-900">Резюме и рекомендации</h2>
+                </div>
+                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                  <div className="p-6 md:p-8 space-y-4">
+                    {generateRecommendations(data).map((rec, index) => (
+                      <div key={index} className={`flex items-start gap-3 p-4 rounded-2xl border ${
+                        rec.type === 'error' ? 'bg-red-50/50 border-red-100 text-red-900' :
+                        rec.type === 'warning' ? 'bg-amber-50/50 border-amber-100 text-amber-900' :
+                        rec.type === 'success' ? 'bg-green-50/50 border-green-100 text-green-900' :
+                        'bg-blue-50/50 border-blue-100 text-blue-900'
+                      }`}>
+                        <div className="shrink-0 mt-0.5">
+                          {rec.type === 'error' && <AlertCircle className="h-5 w-5 text-red-500" />}
+                          {rec.type === 'warning' && <AlertTriangle className="h-5 w-5 text-amber-500" />}
+                          {rec.type === 'success' && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+                          {rec.type === 'info' && <Info className="h-5 w-5 text-blue-500" />}
+                        </div>
+                        <p className="font-medium text-sm leading-relaxed">{rec.text}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </section>
