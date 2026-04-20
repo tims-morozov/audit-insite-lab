@@ -72,10 +72,6 @@ interface AuditData {
     lcp: string;
     score: 'Excellent' | 'Good' | 'Poor';
   };
-  visual: {
-    screenshot: string;
-    mobileFriendly: boolean;
-  };
 }
 
 const generateRecommendations = (data: AuditData) => {
@@ -419,51 +415,6 @@ function App() {
 
             </div>
 
-            {/* Right Column: Visual & Mobile (Temporarily Hidden) 
-            <div className="space-y-8 mt-8">
-              
-              <section>
-                <div className="flex items-center gap-2 mb-4 px-2">
-                  <Eye className="h-6 w-6 text-emerald-600" />
-                  <h2 className="text-xl font-bold text-slate-900">Визуальный аудит</h2>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-xl ${data.visual.mobileFriendly ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
-                        <Smartphone className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-slate-400 uppercase mb-0.5">Адаптивность</p>
-                        <p className="font-bold text-slate-900">{data.visual.mobileFriendly ? 'Оптимизировано' : 'Нет meta viewport'}</p>
-                      </div>
-                    </div>
-                    <StatusIcon status={data.visual.mobileFriendly} />
-                  </div>
-
-                  <div className="bg-white p-2 rounded-3xl shadow-sm border border-slate-100 overflow-hidden group">
-                    <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-100">
-                      <img 
-                        src={data.visual.screenshot} 
-                        alt="Site Screenshot" 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <button className="bg-white text-slate-900 px-4 py-2 rounded-xl font-bold text-sm shadow-xl">
-                          Увеличить
-                        </button>
-                      </div>
-                    </div>
-                    <div className="p-4 text-center">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Скриншот главной страницы</p>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-            </div>
-            */}
           </div>
         )}
       </div>
