@@ -225,33 +225,18 @@ app.post('/api/audit', async (req, res) => {
         const runPageSpeed = async () => {
             try {
                 const apiKeyParam = process.env.PAGESPEED_API_KEY ? `&key=${process.env.PAGESPEED_API_KEY}` : '';
-                // Запрашиваем метрики и скриншот одновременно
+                // Запрашиваем метрики
                 const psiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=desktop&category=performance${apiKeyParam}`;
                 const psiResponse = await axios.get(psiUrl);
                 const lighthouse = psiResponse.data.lighthouseResult;
                 
                 const score = lighthouse.categories.performance.score * 100;
                 const lcp = lighthouse.audits['largest-contentful-paint'].displayValue;
-                
-                // Получаем скриншот из API (он возвращается в формате base64, но с префиксом и символами _, -)
-                let screenshot = '';
-                const finalScreenshotAudit = lighthouse.audits['final-screenshot'];
-                if (finalScreenshotAudit && finalScreenshotAudit.details && finalScreenshotAudit.details.data) {
-                    // Google возвращает base64 с префиксом data:image/jpeg;base64,
-                    screenshot = finalScreenshotAudit.details.data.replace(/_/g, '/').replace(/-/g, '+');
-                }
-
-                // В PageSpeed API напрямую нельзя проверить meta viewport, так как это desktop стратегия,
-                // но можно проверить аудит 'viewport', если запрашивать мобильную версию. 
-                // Для простоты будем считать, что мобильная версия оптимизирована, если нет явной ошибки
-                const isMobileFriendly = true; 
 
                 return {
                     scoreValue: Math.round(score),
                     lcp: lcp,
-                    score: score >= 90 ? 'Excellent' : score >= 50 ? 'Good' : 'Poor',
-                    screenshot: screenshot,
-                    mobileFriendly: isMobileFriendly
+                    score: score >= 90 ? 'Excellent' : score >= 50 ? 'Good' : 'Poor'
                 };
             } catch (e) {
                 console.error('PageSpeed API error:', e.message);
@@ -275,8 +260,6 @@ app.post('/api/audit', async (req, res) => {
                     scoreValue: fallbackScore,
                     lcp: `~${fallbackLcp} (Оценка)`,
                     score: fallbackScore >= 90 ? 'Excellent' : fallbackScore >= 50 ? 'Good' : 'Poor',
-                    screenshot: '',
-                    mobileFriendly: true, // предполагаем, что адаптив есть, чтобы не портить статистику
                     apiError: true
                 };
             }
@@ -295,18 +278,12 @@ app.post('/api/audit', async (req, res) => {
             score: psiResult.score
         };
 
-        const visual = {
-            screenshot: psiResult.screenshot || '',
-            mobileFriendly: psiResult.mobileFriendly
-        };
-
         res.json({
             url,
             marketing,
             seo,
             technical,
             performance,
-            visual,
             timestamp: new Date().toISOString()
         });
 

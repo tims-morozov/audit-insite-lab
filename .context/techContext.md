@@ -13,7 +13,7 @@
 - **Node.js**: Среда выполнения JavaScript.
 - **Express**: Фреймворк для создания API.
 - **Cheerio**: Библиотека для быстрого парсинга HTML (статический анализ).
-- **Google PageSpeed Insights API**: Инструмент от Google для динамического замера скорости загрузки (LCP, Score) и получения скриншота (заменил Puppeteer).
+- **Google PageSpeed Insights API**: Инструмент от Google для динамического замера скорости загрузки (LCP, Score).
 
 ## Архитектура
 - Проект разделен на Client и Server.
