@@ -301,7 +301,7 @@ app.post('/api/audit', async (req, res) => {
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Любой другой запрос (не к API) направляем на React Router
-app.get('*', (req, res) => {
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
