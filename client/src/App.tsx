@@ -121,6 +121,7 @@ function App() {
     setShowBrokenLinks(false);
 
     try {
+      // Используем относительный путь, так как фронт и бэк теперь на одном домене
       const response = await fetch('/api/audit', {
         method: 'POST',
         headers: {
