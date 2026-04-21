@@ -276,31 +276,30 @@ function App() {
                       <p className={`${kpiNumberClass} ${(data.technical.links.brokenUrls?.length || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                         {data.technical.links.brokenUrls?.length || 0}
                       </p>
-                      {data.technical.links.brokenUrls && data.technical.links.brokenUrls.length > 0 ? (
-                        <div className="mt-5">
-                          <button
-                            onClick={() => setShowBrokenLinks(!showBrokenLinks)}
-                            className="text-sm font-semibold text-[#FF4C00] hover:text-[#e64400] transition-colors"
-                          >
-                            {showBrokenLinks ? 'Скрыть список' : 'Показать список'}
-                          </button>
-                          {showBrokenLinks && (
-                            <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 max-h-48 overflow-y-auto">
-                              <ul className="space-y-2">
-                                {data.technical.links.brokenUrls.map((linkUrl, idx) => (
-                                  <li key={idx} className="text-sm text-slate-600 break-all bg-white p-2 rounded-lg shadow-sm border border-slate-200">
-                                    <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#FF4C00] hover:underline">
-                                      {linkUrl}
-                                    </a>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      ) : null}
                     </div>
-                    {(!data.technical.links.brokenUrls || data.technical.links.brokenUrls.length === 0) && (
+                    {data.technical.links.brokenUrls && data.technical.links.brokenUrls.length > 0 ? (
+                      <footer className="mt-auto pt-4 flex flex-col items-start w-full">
+                        <button
+                          onClick={() => setShowBrokenLinks(!showBrokenLinks)}
+                          className="text-sm font-semibold text-[#FF4C00] hover:text-[#e64400] transition-colors"
+                        >
+                          {showBrokenLinks ? 'Скрыть список' : 'Показать список'}
+                        </button>
+                        {showBrokenLinks && (
+                          <div className="mt-3 w-full p-3 bg-slate-50 rounded-xl border border-slate-200 max-h-48 overflow-y-auto">
+                            <ul className="space-y-2">
+                              {data.technical.links.brokenUrls.map((linkUrl, idx) => (
+                                <li key={idx} className="text-sm text-slate-600 break-all bg-white p-2 rounded-lg shadow-sm border border-slate-200">
+                                  <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#FF4C00] hover:underline">
+                                    {linkUrl}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </footer>
+                    ) : (
                       <footer className="mt-auto pt-4">
                         <p className={footerTextClass}>Все ссылки работают корректно</p>
                       </footer>
@@ -378,14 +377,38 @@ function App() {
                 </div>
                 <div className="flex flex-col gap-6">
                   {/* Meta */}
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-6 hover:shadow-md transition-shadow md:flex-row">
-                    <div className="flex-1">
-                      <h3 className={`${overlineClass} mb-2`}>TITLE</h3>
-                      <p className="font-medium text-slate-700 text-base leading-relaxed truncate max-w-full">{data.seo.title}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                    <div className={statCardShellClass}>
+                      <div className="flex min-h-0 flex-1 flex-col gap-2">
+                        <div className="flex shrink-0 items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                          <h3 className={overlineClass}>TITLE</h3>
+                          <StatusIcon status={!!data.seo.title && data.seo.title !== 'Not found'} />
+                        </div>
+                        {data.seo.title && data.seo.title !== 'Not found' ? (
+                          <p className="font-medium text-slate-700 text-base leading-relaxed break-words">{data.seo.title}</p>
+                        ) : (
+                          <p className="font-medium text-rose-600 text-base flex items-center gap-1.5">
+                            <AlertTriangle className="h-4 w-4" />
+                            Отсутствует
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className={`${overlineClass} mb-2`}>DESCRIPTION</h3>
-                      <p className="font-medium text-slate-700 text-base leading-relaxed line-clamp-2 max-w-full">{data.seo.description}</p>
+                    <div className={statCardShellClass}>
+                      <div className="flex min-h-0 flex-1 flex-col gap-2">
+                        <div className="flex shrink-0 items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                          <h3 className={overlineClass}>DESCRIPTION</h3>
+                          <StatusIcon status={!!data.seo.description && data.seo.description !== 'Not found'} />
+                        </div>
+                        {data.seo.description && data.seo.description !== 'Not found' ? (
+                          <p className="font-medium text-slate-700 text-base leading-relaxed break-words">{data.seo.description}</p>
+                        ) : (
+                          <p className="font-medium text-rose-600 text-base flex items-center gap-1.5">
+                            <AlertTriangle className="h-4 w-4" />
+                            Отсутствует
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
 
