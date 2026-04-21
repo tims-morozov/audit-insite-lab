@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -294,6 +295,14 @@ app.post('/api/audit', async (req, res) => {
             details: error.message 
         });
     }
+});
+
+// Отдаем статические файлы React-приложения
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// Любой другой запрос (не к API) направляем на React Router
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 app.listen(PORT, () => {
