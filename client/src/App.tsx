@@ -7,15 +7,11 @@ import {
   Globe, 
   FileText, 
   BarChart3, 
-  ShieldCheck, 
-  Image as ImageIcon,
   AlertTriangle,
   Layers,
   PhoneCall,
   Zap,
-  Lightbulb,
-  AlertCircle,
-  Info
+  Lightbulb
 } from 'lucide-react';
 
 interface AuditData {
@@ -146,56 +142,75 @@ function App() {
     }
   };
 
-  const StatusIcon = ({ status }: { status: boolean }) => 
-    status ? <CheckCircle2 className="h-5 w-5 text-emerald-500" /> : <XCircle className="h-5 w-5 text-rose-500" />;
+  const StatusIcon = ({ status }: { status: boolean }) =>
+    status ? (
+      <CheckCircle2 className="h-5 w-5 text-emerald-600" strokeWidth={1.5} />
+    ) : (
+      <XCircle className="h-5 w-5 text-rose-600" strokeWidth={1.5} />
+    );
 
   const getPerfTextColor = (score: string) => {
     switch (score) {
       case 'Excellent': return 'text-emerald-600';
-      case 'Good': return 'text-[#FF4C00]';
+      case 'Good': return 'text-orange-600';
       default: return 'text-rose-600';
     }
   };
 
   const getPerfBadgeColor = (score: string) => {
     switch (score) {
-      case 'Excellent': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      case 'Good': return 'bg-[#FF4C00]/10 text-[#FF4C00] border-[#FF4C00]/20';
-      default: return 'bg-rose-50 text-rose-700 border-rose-200';
+      case 'Excellent': return 'bg-emerald-100 text-emerald-800 font-medium px-2 py-0.5 rounded-full text-xs';
+      case 'Good': return 'bg-amber-100 text-amber-700 font-medium px-2 py-0.5 rounded-full text-xs';
+      default: return 'bg-rose-100 text-rose-700 font-medium px-2 py-0.5 rounded-full text-xs';
     }
   };
 
+  const overlineClass = 'text-[11px] font-bold uppercase tracking-[0.05em] text-slate-400';
+  const footerTextClass = 'text-xs font-medium text-slate-500 antialiased';
+  const kpiNumberClass = 'text-4xl font-bold tracking-tighter tabular-nums';
+  const kpiDenomClass = 'text-lg font-medium leading-none text-slate-400 tabular-nums';
+  /** SEO mini-cards: narrower columns — one step smaller than technical KPIs for visual parity */
+  const seoKpiNumberClass = 'text-3xl font-bold tracking-tight tabular-nums';
+  const seoKpiDenomClass = 'text-base font-medium leading-none text-slate-400 tabular-nums';
+  const statusPositiveClass = 'text-2xl font-bold tracking-tight leading-none text-emerald-600';
+  const statusNegativeClass = 'text-2xl font-bold tracking-tight leading-none text-rose-600';
+  const statCardShellClass =
+    'bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col h-full min-h-[180px] hover:shadow-md transition-shadow';
+  const seoKpiCardClass =
+    'bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-2 hover:shadow-md transition-shadow';
+  const formattedLcp = data?.performance.lcp.replace(/s$/i, ' s');
+
   return (
-    <div className="min-h-screen bg-[#F5F5F7] font-sans text-slate-900 antialiased flex flex-col justify-center selection:bg-[#FF4C00]/20 selection:text-[#FF4C00]">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased tabular-nums flex flex-col justify-center selection:bg-[#FF4C00]/20 selection:text-[#FF4C00]">
       <main className="py-12 px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-6xl mx-auto">
           <form onSubmit={handleAudit} className="mb-12">
-            <div className="flex flex-col sm:flex-row gap-3 max-w-3xl mx-auto bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
-              <div className="relative flex-1">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Globe className="h-5 w-5 text-slate-400" />
+            <div className="max-w-2xl mx-auto flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-2 shadow-sm sm:flex-row sm:items-stretch">
+              <div className="relative min-h-0 flex-1">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <Globe className="h-4 w-4 text-slate-400" />
                 </div>
                 <input
                   type="text"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="Введите URL сайта (например: vash-sait.ru)"
-                  className="block w-full pl-12 pr-4 py-3.5 sm:py-4 bg-transparent border-0 focus:ring-0 focus:outline-none text-slate-900 placeholder:text-slate-400 text-base sm:text-lg"
+                  className="h-12 w-full rounded-lg border-0 bg-transparent py-3 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading || !url}
-                className="px-8 py-3.5 sm:py-4 bg-[#FF4C00] text-white font-semibold rounded-lg hover:bg-[#e64400] focus:outline-none focus:ring-4 focus:ring-[#FF4C00]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-base sm:text-lg shadow-sm"
+                className="inline-flex shrink-0 items-center justify-center gap-2 self-stretch rounded-lg bg-[#FF4C00] px-6 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#e64400] focus:outline-none focus:ring-4 focus:ring-[#FF4C00]/20 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-[3rem]"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     Анализ...
                   </>
                 ) : (
                   <>
-                    <Search className="h-5 w-5" />
+                    <Search className="h-4 w-4" />
                     Проверить
                   </>
                 )}
@@ -214,7 +229,7 @@ function App() {
           <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
             
             {/* Analysis Results */}
-            <div className="space-y-8">
+            <div className="space-y-12">
               
               {/* 1. Техническое состояние */}
               <section>
@@ -222,64 +237,73 @@ function App() {
                   <Layers className="h-6 w-6 text-slate-900" />
                   <h2 className="text-xl font-semibold tracking-tight text-slate-900">Техническое состояние</h2>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-medium text-slate-500">Скорость загрузки</h3>
-                        <div className={`px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wide border ${getPerfBadgeColor(data.performance.score)}`}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-stretch">
+                  <div className={statCardShellClass}>
+                    <div className="flex min-h-0 flex-1 grow flex-col gap-2">
+                      <div className="flex shrink-0 items-center justify-between">
+                        <h3 className={overlineClass}>СКОРОСТЬ ЗАГРУЗКИ</h3>
+                        <div className={`${getPerfBadgeColor(data.performance.score)}`}>
                           {data.performance.score === 'Excellent' ? 'Отличная' : data.performance.score === 'Good' ? 'Средняя' : 'Низкая'}
                         </div>
                       </div>
-                      <div className="flex items-end gap-2">
-                        <p className={`text-4xl font-bold tracking-tight leading-none ${getPerfTextColor(data.performance.score)}`}>{data.performance.lcp}</p>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-baseline gap-1.5">
+                          <p
+                            className={`${kpiNumberClass} leading-none ${
+                              data.performance.scoreValue < 90 && data.performance.scoreValue >= 50
+                                ? 'text-orange-600'
+                                : getPerfTextColor(data.performance.score)
+                            }`}
+                          >
+                            {data.performance.scoreValue}
+                          </p>
+                          <p className={kpiDenomClass}>/ 100</p>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
-                      <span className="text-sm font-medium text-slate-500">
-                        Оценка Google PageSpeed
-                      </span>
-                      <span className="text-sm font-semibold text-slate-900">
-                        {data.performance.scoreValue} <span className="text-slate-400 font-normal">/ 100</span>
-                      </span>
-                    </div>
+                    <footer className="mt-auto pt-4">
+                      <p className={footerTextClass}>
+                        Время загрузки: {formattedLcp}
+                      </p>
+                    </footer>
                   </div>
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-medium text-slate-500">Нерабочие ссылки</h3>
+                  <div className={statCardShellClass}>
+                    <div className="flex min-h-0 flex-1 grow flex-col gap-2">
+                      <div className="flex shrink-0 items-center justify-between">
+                        <h3 className={overlineClass}>НЕРАБОЧИЕ ССЫЛКИ</h3>
                         <StatusIcon status={(data.technical.links.brokenUrls?.length || 0) === 0} />
                       </div>
-                      <p className={`text-4xl font-bold tracking-tight ${(data.technical.links.brokenUrls?.length || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                      <p className={`${kpiNumberClass} ${(data.technical.links.brokenUrls?.length || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                         {data.technical.links.brokenUrls?.length || 0}
                       </p>
+                      {data.technical.links.brokenUrls && data.technical.links.brokenUrls.length > 0 ? (
+                        <div className="mt-5">
+                          <button
+                            onClick={() => setShowBrokenLinks(!showBrokenLinks)}
+                            className="text-sm font-semibold text-[#FF4C00] hover:text-[#e64400] transition-colors"
+                          >
+                            {showBrokenLinks ? 'Скрыть список' : 'Показать список'}
+                          </button>
+                          {showBrokenLinks && (
+                            <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 max-h-48 overflow-y-auto">
+                              <ul className="space-y-2">
+                                {data.technical.links.brokenUrls.map((linkUrl, idx) => (
+                                  <li key={idx} className="text-sm text-slate-600 break-all bg-white p-2 rounded-lg shadow-sm border border-slate-200">
+                                    <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#FF4C00] hover:underline">
+                                      {linkUrl}
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
                     </div>
-                    {data.technical.links.brokenUrls && data.technical.links.brokenUrls.length > 0 ? (
-                      <div className="mt-6 pt-4 border-t border-slate-100">
-                        <button
-                          onClick={() => setShowBrokenLinks(!showBrokenLinks)}
-                          className="text-sm font-semibold text-[#FF4C00] hover:text-[#e64400] transition-colors"
-                        >
-                          {showBrokenLinks ? 'Скрыть список' : 'Показать список'}
-                        </button>
-                        {showBrokenLinks && (
-                          <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-100 max-h-48 overflow-y-auto">
-                            <ul className="space-y-2">
-                              {data.technical.links.brokenUrls.map((linkUrl, idx) => (
-                                <li key={idx} className="text-sm text-slate-600 break-all bg-white p-2 rounded-lg shadow-sm border border-slate-100">
-                                  <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#FF4C00] hover:underline">
-                                    {linkUrl}
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="mt-6 pt-4 border-t border-slate-100">
-                        <span className="text-sm font-medium text-slate-500">Битых ссылок не найдено</span>
-                      </div>
+                    {(!data.technical.links.brokenUrls || data.technical.links.brokenUrls.length === 0) && (
+                      <footer className="mt-auto pt-4">
+                        <p className={footerTextClass}>Все ссылки работают корректно</p>
+                      </footer>
                     )}
                   </div>
                 </div>
@@ -291,44 +315,54 @@ function App() {
                   <BarChart3 className="h-6 w-6 text-slate-900" />
                   <h2 className="text-xl font-semibold tracking-tight text-slate-900">Маркетинг и Аналитика</h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col hover:shadow-md transition-shadow">
-                    <h3 className="text-sm font-medium text-slate-500 mb-4">Системы аналитики</h3>
-                    <div className="grid grid-cols-1 gap-2 flex-1 content-start">
-                      {Object.entries(data.marketing.analytics).map(([key, value]) => (
-                        <div key={key} className={`flex items-center justify-between p-2.5 rounded-lg border ${value ? 'bg-emerald-50/30 border-emerald-100/60' : 'bg-slate-50/50 border-slate-100'}`}>
-                          <span className={`text-sm font-medium ${value ? 'text-emerald-900' : 'text-slate-500'}`}>
-                            {key === 'yandexMetrika' ? 'Яндекс.Метрика' : 
-                             key === 'vkPixel' ? 'Пиксель ВК' : 
-                             key.charAt(0).toUpperCase() + key.slice(1)}
-                          </span>
-                          <StatusIcon status={value} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                  <div className={statCardShellClass}>
+                    <h3 className={`${overlineClass} mb-4`}>СИСТЕМЫ АНАЛИТИКИ</h3>
+                    <div className="flex flex-col flex-1 content-start">
+                      {Object.entries(data.marketing.analytics).map(([key, value], index) => (
+                        <div
+                          key={key}
+                          className={`flex items-center justify-between py-2 px-2 ${index > 0 ? 'border-t border-slate-200' : ''}`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <StatusIcon status={value} />
+                            <span className={`text-sm font-medium ${value ? 'text-slate-800' : 'text-slate-600'}`}>
+                              {key === 'yandexMetrika' ? 'Яндекс.Метрика' : 
+                               key === 'vkPixel' ? 'Пиксель ВК' : 
+                               key.charAt(0).toUpperCase() + key.slice(1)}
+                            </span>
+                          </div>
+                          {value && (
+                            <span className="bg-emerald-50 text-emerald-700 font-medium px-2 py-0.5 rounded-full text-xs">
+                              Найдено
+                            </span>
+                          )}
+                          {!value && (
+                            <span className="bg-slate-50 text-slate-400 font-medium px-2 py-0.5 rounded-full text-xs">Не найдено</span>
+                          )}
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-medium text-slate-500">Подмена номера</h3>
+                  <div className={statCardShellClass}>
+                    <div className="flex min-h-0 flex-1 flex-col gap-2">
+                      <div className="flex shrink-0 items-center justify-between mb-2">
+                        <h3 className={overlineClass}>ПОДМЕНА НОМЕРА</h3>
                         <StatusIcon status={data.marketing.callTracking.present} />
                       </div>
-                      <div className="flex items-center gap-4 mt-2">
-                        <div className={`p-3 rounded-xl ${data.marketing.callTracking.present ? 'bg-emerald-50' : 'bg-slate-50 border border-slate-100'}`}>
-                          <PhoneCall className={`h-7 w-7 ${data.marketing.callTracking.present ? 'text-emerald-600' : 'text-slate-400'}`} />
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 flex shrink-0 items-center justify-center rounded-lg border ${data.marketing.callTracking.present ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-200'}`}>
+                          <PhoneCall className={`h-5 w-5 ${data.marketing.callTracking.present ? 'text-emerald-600' : 'text-slate-400'}`} />
                         </div>
-                        <div>
-                          <p className={`text-xl font-bold tracking-tight ${data.marketing.callTracking.present ? 'text-emerald-600' : 'text-slate-700'}`}>
+                        <div className="min-w-0">
+                          <p className={data.marketing.callTracking.present ? statusPositiveClass : statusNegativeClass}>
                             {data.marketing.callTracking.present ? 'Найдено' : 'Не найдено'}
-                          </p>
-                          <p className={`text-sm font-medium mt-0.5 ${data.marketing.callTracking.present ? 'text-emerald-700/80' : 'text-slate-500'}`}>
-                            {data.marketing.callTracking.method}
                           </p>
                         </div>
                       </div>
                     </div>
-                    <div className="mt-6 pt-4 border-t border-slate-100">
-                      <p className="text-sm font-medium text-slate-500 leading-relaxed">
+                    <div className="mt-auto border-t border-slate-100 pt-4">
+                      <p className="text-[13px] leading-relaxed text-slate-600">
                         Поиск скриптов коллтрекинга и специфических классов в коде.
                       </p>
                     </div>
@@ -342,29 +376,30 @@ function App() {
                   <FileText className="h-6 w-6 text-slate-900" />
                   <h2 className="text-xl font-semibold tracking-tight text-slate-900">SEO-аудит</h2>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+                <div className="flex flex-col gap-6">
                   {/* Meta */}
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 col-span-1 sm:col-span-2 lg:col-span-3 flex flex-col md:flex-row gap-6 hover:shadow-md transition-shadow">
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-6 hover:shadow-md transition-shadow md:flex-row">
                     <div className="flex-1">
-                      <h3 className="text-sm font-medium text-slate-500 mb-2">Title</h3>
-                      <p className="text-slate-900 font-medium text-base leading-relaxed">{data.seo.title}</p>
+                      <h3 className={`${overlineClass} mb-2`}>TITLE</h3>
+                      <p className="font-medium text-slate-700 text-base leading-relaxed truncate max-w-full">{data.seo.title}</p>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-sm font-medium text-slate-500 mb-2">Description</h3>
-                      <p className="text-slate-900 font-medium text-base leading-relaxed">{data.seo.description}</p>
+                      <h3 className={`${overlineClass} mb-2`}>DESCRIPTION</h3>
+                      <p className="font-medium text-slate-700 text-base leading-relaxed line-clamp-2 max-w-full">{data.seo.description}</p>
                     </div>
                   </div>
 
+                  <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-3 sm:gap-6">
                   {/* H1 */}
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-medium text-slate-500">H1 Заголовки</h3>
+                  <div className={seoKpiCardClass}>
+                    <div className="flex shrink-0 items-center justify-between">
+                      <h3 className={overlineClass}>H1 ЗАГОЛОВКИ</h3>
                       <StatusIcon status={data.seo.h1.count === 1 && !data.seo.h1.hasDuplicates} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-3xl font-bold tracking-tight ${data.seo.h1.count === 1 && !data.seo.h1.hasDuplicates ? 'text-emerald-600' : 'text-rose-600'}`}>{data.seo.h1.count}</span>
+                    <div className="flex w-full items-baseline justify-between gap-3">
+                      <span className={`${seoKpiNumberClass} leading-none ${data.seo.h1.count === 1 && !data.seo.h1.hasDuplicates ? 'text-emerald-600' : 'text-rose-600'}`}>{data.seo.h1.count}</span>
                       {data.seo.h1.hasDuplicates && (
-                        <div className="flex items-center gap-1 text-[#FF4C00] bg-[#FF4C00]/5 px-2 py-1 rounded-md border border-[#FF4C00]/20">
+                        <div className="flex shrink-0 items-center gap-1 text-[#FF4C00] bg-[#FF4C00]/5 px-2 py-1 rounded-md border border-[#FF4C00]/20">
                           <AlertTriangle className="h-4 w-4" />
                           <span className="text-xs font-semibold uppercase tracking-wide">Дубли</span>
                         </div>
@@ -373,36 +408,37 @@ function App() {
                   </div>
 
                   {/* Images */}
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-medium text-slate-500">Без Alt-тегов</h3>
+                  <div className={seoKpiCardClass}>
+                    <div className="flex shrink-0 items-center justify-between">
+                      <h3 className={overlineClass}>ИЗОБРАЖЕНИЯ БЕЗ ALT</h3>
                       <StatusIcon status={data.seo.images.missingAlt === 0} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-3xl font-bold tracking-tight ${data.seo.images.missingAlt === 0 ? 'text-emerald-600' : 'text-[#FF4C00]'}`}>{data.seo.images.missingAlt}</span>
-                      <span className="text-sm font-medium text-slate-400">из {data.seo.images.total}</span>
+                    <div className="flex items-baseline tabular-nums">
+                      <span className={`${seoKpiNumberClass} leading-none ${data.seo.images.missingAlt === 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{data.seo.images.missingAlt}</span>
+                      <span className={`ml-2 ${seoKpiDenomClass}`}>/ {data.seo.images.total}</span>
                     </div>
                   </div>
 
                   {/* Favicon */}
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-medium text-slate-500">Фавикон</h3>
+                  <div className={seoKpiCardClass}>
+                    <div className="flex shrink-0 items-center justify-between">
+                      <h3 className={overlineClass}>ФАВИКОН</h3>
                       <StatusIcon status={data.technical.favicon} />
                     </div>
-                    <p className={`text-xl font-bold tracking-tight ${data.technical.favicon ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    <p className={`text-2xl font-bold tracking-tight leading-none ${data.technical.favicon ? 'text-emerald-600' : 'text-rose-600'}`}>
                       {data.technical.favicon ? 'Установлен' : 'Отсутствует'}
                     </p>
                   </div>
-                  
+                  </div>
+
                   {/* CTA */}
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 col-span-1 sm:col-span-2 lg:col-span-3 flex flex-col sm:flex-row items-center justify-between gap-4 hover:shadow-md transition-shadow">
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-between gap-4 hover:shadow-md transition-shadow sm:flex-row">
                     <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-xl ${data.seo.cta.isEnough ? 'bg-emerald-50' : 'bg-[#FF4C00]/5'}`}>
+                      <div className={`p-3 rounded-lg border ${data.seo.cta.isEnough ? 'bg-emerald-50 border-emerald-100' : 'bg-[#FF4C00]/5 border-[#FF4C00]/20'}`}>
                         <Zap className={`h-6 w-6 ${data.seo.cta.isEnough ? 'text-emerald-600' : 'text-[#FF4C00]'}`} />
                       </div>
                       <div>
-                        <h3 className="text-sm font-medium text-slate-500 mb-1">Призывы к действию (CTA)</h3>
+                        <h3 className={`${overlineClass} mb-1`}>ПРИЗЫВЫ К ДЕЙСТВИЮ (CTA)</h3>
                         <p className="font-medium text-slate-900 text-base">{data.seo.cta.isEnough ? 'Оценка CTA: OK' : 'Рекомендуется добавить больше CTA'}</p>
                       </div>
                     </div>
@@ -418,29 +454,19 @@ function App() {
                   <h2 className="text-xl font-semibold tracking-tight text-slate-900">Резюме и рекомендации</h2>
                 </div>
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="p-6 md:p-8 space-y-4">
+                  <div className="p-6 md:p-6 space-y-4">
                     {generateRecommendations(data).map((rec, index) => (
-                      <div key={index} className={`flex items-start gap-3 p-4 rounded-xl border ${
-                        rec.type === 'error' ? 'bg-rose-50/50 border-rose-100 text-rose-900' :
-                        rec.type === 'warning' ? 'bg-[#FF4C00]/5 border-[#FF4C00]/20 text-slate-900' :
-                        rec.type === 'success' ? 'bg-emerald-50/50 border-emerald-100 text-emerald-900' :
-                        'bg-slate-50 border-slate-200 text-slate-900'
-                      }`}>
+                      <div key={index} className="flex items-start gap-3 p-4 rounded-lg border border-slate-200 border-l-4 border-l-amber-400 bg-white">
                         <div className="shrink-0 mt-0.5">
-                          {rec.type === 'error' && <AlertCircle className="h-5 w-5 text-rose-500" />}
-                          {rec.type === 'warning' && <AlertTriangle className="h-5 w-5 text-[#FF4C00]" />}
-                          {rec.type === 'success' && <CheckCircle2 className="h-5 w-5 text-emerald-500" />}
-                          {rec.type === 'info' && <Info className="h-5 w-5 text-slate-400" />}
+                          <AlertTriangle className="h-5 w-5 text-amber-500" strokeWidth={1.5} />
                         </div>
-                        <p className="font-medium text-sm leading-relaxed">{rec.text}</p>
+                        <p className="font-medium text-sm leading-relaxed text-slate-700">{rec.text}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               </section>
-
             </div>
-
           </div>
         )}
         </div>
