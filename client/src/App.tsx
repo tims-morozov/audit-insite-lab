@@ -10,16 +10,10 @@ import {
   BarChart3, 
   AlertTriangle,
   Layers,
-  PhoneCall,
   Zap,
   Lightbulb,
   Monitor,
-  Smartphone,
-  Link,
-  Copy,
-  Filter,
-  ArrowUpDown,
-  Check
+  Smartphone
 } from 'lucide-react';
 
 interface AuditData {
@@ -174,15 +168,6 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [showBrokenLinks, setShowBrokenLinks] = useState(false);
   const [showH1Details, setShowH1Details] = useState(false);
-  const [linkFilter, setLinkFilter] = useState<'all' | 'internal' | 'external'>('all');
-  const [linkSearch, setLinkSearch] = useState('');
-  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedUrl(text);
-    setTimeout(() => setCopiedUrl(null), 2000);
-  };
 
   const handleAudit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -431,7 +416,7 @@ function App() {
                       {Object.entries(data.marketing.metrics).filter(([_, value]) => value).length > 0 ? (
                         Object.entries(data.marketing.metrics)
                           .filter(([_, value]) => value)
-                          .map(([key, value]) => (
+                          .map(([key]) => (
                             <div key={key} className="flex items-center justify-between py-1.5">
                               <span className="text-sm font-medium text-slate-700">
                                 {key === 'yandexMetrika' ? 'Яндекс.Метрика' : key === 'googleAnalytics' ? 'Google Analytics' : key === 'vkPixel' ? 'Пиксель ВК' : key.charAt(0).toUpperCase() + key.slice(1)}
@@ -455,7 +440,7 @@ function App() {
                       {Object.entries(data.marketing.e2e).filter(([_, value]) => value).length > 0 ? (
                         Object.entries(data.marketing.e2e)
                           .filter(([_, value]) => value)
-                          .map(([key, value]) => (
+                          .map(([key]) => (
                             <div key={key} className="flex items-center justify-between py-1.5">
                               <span className="text-sm font-medium text-slate-700">
                                 {key.charAt(0).toUpperCase() + key.slice(1)}
